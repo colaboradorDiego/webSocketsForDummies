@@ -3,10 +3,15 @@ import websockets
 
 
 async def echo(echoserver, path):
-    mensage = await echoserver.recv()
-    await echoserver.send(mensage)
-    await asyncio.sleep(0.5)
-    print("ECHO SERVER: recibe y envia [mensage]: [", mensage, "]")
+    try:
+        msg = await echoserver.recv()
+        await echoserver.send(msg)
+        await asyncio.sleep(0.5)
+        print("ECHO SERVER: recibe y envia [mensage]: [", msg, "]")
+
+    except websockets.ConnectionClosedOK:
+        print("Conn closed")
+
 
 
 async def main():
@@ -14,8 +19,9 @@ async def main():
         await asyncio.Future()  # run forever
 
 
-loop = asyncio.get_event_loop()
+loop = asyncio.new_event_loop()
 try:
+    asyncio.set_event_loop(loop)
     loop.run_until_complete(main())
 finally:
     loop.close()
